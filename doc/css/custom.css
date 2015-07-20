@@ -250,6 +250,11 @@ a:hover {
   text-decoration: underline;
 }
 
+.content h4 {
+	text-indent: 2em;
+	margin-bottom: 10px;
+}
+
 @media screen and (max-width: 800px){
 	.no-js .menu-panel {
 		display: none;

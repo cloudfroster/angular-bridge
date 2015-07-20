@@ -5,9 +5,9 @@
 	<title>双向数据绑定原理(简化版)</title>
 </head>
 <body>
-
-	<input type="text" ng-model="name" ng-model="name">
-
+	<h1>双向数据绑定</h1>
+	<input type="text" ng-model="name" ng-bind="name">
+	<div ng-bind="name"></div>
 	<script>
 	(function() {
 
@@ -15,7 +15,7 @@
 			this.$watchers = [];
 		}
 
-		Scope.prototype.$watch = function(exp, listener, eq) {
+		Scope.prototype.$watch = function(exp, fn, eq) {
 			var scope = this;
 			if(typeof exp === 'string') {
 				//如果是字符串,转换成函数
@@ -23,14 +23,14 @@
 					eq : eq || false,
 					exp : function(){return scope[exp]},
 					last : undefined,
-					listener : listener || function(){}
+					fn : fn || function(){}
 				});
 			}else if(typeof exp === 'function') {
 				this.$watchers.push({
 					eq : eq || false,
 					exp : exp,
 					last : undefined,
-					listener : listener || function(){}
+					fn : fn || function(){}
 				});
 			}else {
 				console.log('exp must be a function!');
@@ -58,12 +58,12 @@
 
 					}
 					/* 不相等的话,处理逻辑 */
-					obj.listener();
+					obj.fn();
 					obj.last = newValue;
 					dirty = true;
 
 					/* 渲染页面效果 */
-					console.log('现在' + key + ':' + '已经变成了' + newValue);
+					console.log('现在' + key + ':' + '已经变成了 ' + newValue);
 
 				});
 			}while(dirty)
@@ -73,18 +73,31 @@
 
 		var ele = document.querySelector('[ng-model]');
 		var key;
+
 		(function() {
 			key = ele.getAttribute('ng-model');
-			scope.$watch(key,function(){});  /* 自动数据绑定 */
+			scope.$watch(key,function(){
+				var allEle = document.querySelectorAll('[ng-bind=name]')
+				for(var i = 0; i < allEle.length; i++) {
+					allEle[i].innerHTML = scope[key];
+					allEle[i].value = scope[key];		/* 更聪明的做法是判断元素是什么 */
+				}
+			});  /* 自动数据绑定 */
 		})();
 
 		ele.oninput = function() {
 			scope[key] = this.value;
 			scope.$digest();
 		}
-		
+		scope.name = 'marchen  我将在2秒后改变';
 		scope.$digest();
 
+
+        //测试数据改变,界面也会发生改变
+		setTimeout(function(){
+			scope.name = 'marchenning 我已经改变了';
+			scope.$digest();
+		},2000);
 	})();
 	</script>
 </body>

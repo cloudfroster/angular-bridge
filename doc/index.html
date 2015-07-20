@@ -72,9 +72,152 @@
 					<div class="bb-item" id="item2">
 						<div class="content">
 							<div class="scroller">
-								<h2>待定</h2>
-							</div>
+								<h2>数据绑定</h2>
+									<h4>
+										angular实现了数据绑定,就是view层面的操作,能映射到model层面,说白了,就是界面上操作一些东西,就能自动修改javascript变量的值.示例:
+									</h4>
+									<pre name="code" class="html">
+&lt;input value='' ng-model="name" placeholder="input your name"&gt;
+									</pre>
+									<pre name="code" class="js">
+var name;
+									</pre>
+							<p>
+								从单向数据绑定来说,需要做到界面的操作能映射到变量name.对于这个示例来说,很简单,只需要给带有ng-model属性的input元素注册个input事件,然后事件会自动更新name这个变量.我们这样来实现:
+							</p>
+							<pre name="code" class="js">
+var models = [];  //变量组
+
+models.push({
+	ele : document.querySelector("input[ng-model]"),
+	name : document.querySelector("input[ng-model]").getAttribute('ng-model'),
+	model : eval(models[0])
+});
+
+models[0].ele.oninput = function () {
+	models[0].model = this.value;
+
+	//验证输出
+	console.log('now models[0].model is :' + models[0].model);
+}
+							</pre>
+							<p>
+								注册一个事件,就能很轻松的实现操作界面,变量改变了,这个是从view--->model,当然,angular监听的事情不只是input,还包括其他比如keydown,ajax完成事件等等.angular内部实现会更加复杂,作为原理,就讲解到这里,下面来看看model--->view,还是以上的例子来说,就是变量的值改变了,界面上input的value就能改变,想想看,怎么能让一个变量的值改变了,能通知或者说调用一个方法来改变界面呢?
+							</p>
+							<p>
+								很轻松的就能想到,可以使用object.observe来实现对变量的监视,然后回调一个方法来改变元素,这个是一个好的方法,但是对低端浏览器兼容性比较差,那竟然不行的话,就只能在改变变量后,手动调用一个方法,来检测下是不是变量发生了改变.(很多人想不清楚为什么变量改变了,界面会改变的原因就是,后面需要调用一个方法来检测变量是不是改变了,而不是单单只改变变量就能实现界面的改变),而angular内部就是采用这种方式来实现的,使用$digest这个方法来实现.这种方式又被称为脏检测机制
+							</p>
+							<pre name="code" class="js">
+$scope.name = 'hello world';
+$scope.$digest();   //不加上这句,界面不会改变
+							</pre>
+							<p>
+								angular中用$scope来作为界面和数据之间的粘合剂,我们来模拟下angular怎么实现$scope改变后,能知道改变了那个,Scope我们认为是一个构造函数,含有属性$watchers(存放需要监视的变量).包括一个$watch(主要是来注册监视事件的)方法.还包括一个$digest方法来触发脏检测.($digest是一个方法,主要是循环$watcher队列中的exp方法,然后来判断变量是否改变,如果改变了,就调用注册的事件.).我们可以注册一个需要监测的变量到scope的$watchers里面去,在改变变量后,手动调用下$digest循环遍历下是否有改变了的值,然后有的话,就调用注册的回调函数.
+							</p>
+							<pre name="code" class="js">
+function Scope() {
+	this.$watchers = [];
+}
+
+Scope.prototype.$watch = function(exp, fn, eq) {
+	var scope = this;
+	if(typeof exp === 'string') {
+		//如果是字符串,转换成函数
+		this.$watchers.push({
+			eq : eq || false,
+			exp : function(){return scope[exp]},
+			last : undefined,
+			fn : fn || function(){}
+		});
+	}else if(typeof exp === 'function') {
+		this.$watchers.push({
+			eq : eq || false,
+			exp : exp,
+			last : undefined,
+			fn : fn || function(){}
+		});
+	}else {
+		console.log('exp must be a function!');
+	}
+}
+
+Scope.prototype.$digest = function() {
+	var dirty;
+	do {
+		dirty = false;
+
+		this.$watchers.forEach(function(obj, index, array) {
+
+			var newValue = obj.exp();
+			var oldValue = obj.last;
+
+			if(!obj.eq) {
+				/*  浅检测相等 */
+				if(newValue === oldValue) {
+					return false;
+				}
+
+			}else {
+				/* 深度检测相等 */
+				/* 深度检测对象是否相等,这里省略 */
+
+			}
+			/* 不相等的话,处理逻辑 */
+			obj.fn();
+			obj.last = newValue;
+			dirty = true;
+
+			/* 渲染页面效果 */
+			console.log('现在' + key + ':' + '已经变成了' + newValue);
+
+		});
+	}while(dirty)
+}
+							</pre>
+							<p>
+								当我们的Scope构造函数完成的时候,已经具备了检测变量是否改变,如果改变就调用回调函数的功能了.剩下的事情就很简单了.新建一个scope对象,然后注册一个回调函数.让我们来试试.
+							</p>
+							<pre name="code" class="js">
+var scope = new Scope();
+
+var ele = document.querySelector('[ng-model]');
+var key;
+
+(function() {
+	key = ele.getAttribute('ng-model');
+	scope.$watch(key,function(){
+		var allEle = document.querySelectorAll('[ng-bind=name]')
+		for(var i = 0; i < allEle.length; i++) {
+			allEle[i].innerHTML = scope[key];
+			allEle[i].value = scope[key];		/* 更聪明的做法是判断元素是什么 */
+		}
+	});  /* 自动数据绑定 */
+})();
+
+ele.oninput = function() {
+	scope[key] = this.value;
+	scope.$digest();
+}
+scope.name = 'marchen  我将在2秒后改变';
+scope.$digest();
+
+
+//测试数据改变,界面也会发生改变
+setTimeout(function(){
+	scope.name = 'marchenning 我已经改变了';
+	scope.$digest();
+},2000);
+							</pre>
+							<p>
+								新建一个scope对象,然后注册回调事件,其中有很多可以优化的地方,包括可以把事情封装起来,然后在调用$digest事情.angular内部还提供了$apply方法来间接调用$digest方法(详细区别这里就不说了).而且angular内部脏检测会记录次数,超过10次循环就会报错等等一系列优化,希望这个示例,能帮助读者在读源码的时候,理解概念.
+							</p>
+							<p>
+								更加详细的介绍,可以看src目录下的first/data-bind-theory.html.
+							</p>
+							<h4>双向数据绑定</h4>
+							<p>通过以上的介绍,相信双向数据绑定就很简单了,只需要封装下事件,然后在每个事件后面调用$digest方法就可以了.脏检测就是循环判断队列中的变量是否发生改变.改变的数据可以称之为脏数据,从而调用回调.其实上面的示例已经算是双向了,读者可以试着自己封装下事件,实现双向绑定.</p>
 						</div>
+					</div>
 					</div>
 					<div class="bb-item" id="item3">
 						<div class="content">
