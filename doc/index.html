@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<title>magic-angular</title>
+		<meta name="description" content="分析angular源码" />
+		<meta name="keywords" content="angular,js,mvc,fe" />
+		<meta name="author" content="marchen" />
+		<link rel="shortcut icon" href="../favicon.ico"> 
+		<link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.custom.css" />
+		<link rel="stylesheet" type="text/css" href="css/bookblock.css" />
+		<link rel="stylesheet" type="text/css" href="css/custom.css" />
+		<script src="js/modernizr.custom.79639.js"></script>
+	</head>
+	<body>
+		<div id="container" class="container">	
+
+			<div class="menu-panel">
+				<h3>目录</h3>
+				<ul id="menu-toc" class="menu-toc">
+					<li class="menu-toc-current"><a href="#item1">序</a></li>
+					<li><a href="#item2">数据绑定</a></li>
+					<li><a href="#item3">待定</a></li>
+					<li><a href="#item4">待定</a></li>
+					<li><a href="#item5">待定</a></li>
+				</ul>
+				<div>
+					<a href="https://github.com/chen844033231/magic-angular" title="fork me" target="_blank">&larr; fork me on github</a>
+				</div>
+			</div>
+
+			<div class="bb-custom-wrapper">
+				<div id="bb-bookblock" class="bb-bookblock">
+					<div class="bb-item" id="item1">
+						<div class="content">
+							<div class="scroller">
+								<h2>序</h2>
+								<p>
+									AngularJS诞生于2009年，由Misko Hevery 等人创建，后为Google所收购。是一款优秀的前端JS框架，已经被用于Google的多款产品当中。AngularJS有着诸多特性，最为核心的是：MVVM、模块化、自动化双向数据绑定、语义化标签、依赖注入、等等
+								</p>
+
+								<p>
+									到魔都也几周了,发现这边用angular框架的比较多,加上其他一些因素,笔者打算学习angular这门框架,作为一名前端小白,接触的框架比较杂,比如backbone,ractive,react等框架,而一直没有决定细节的去学习哪门框架,而只是定留在会用的阶段.对于目前的前端来说,选择一个框架简直是难,而来自于tastejs的<a href="https://github.com/tastejs/todomvc">todomvc</a>试图帮助我们更好的选择前端框架,通过看评论和反馈,最终还是决定细节的学习下angular,而这一系的文章,就是记录下笔者学习angular的过程,其中涉及的难点,疑问,我都会一一记录下来,希望能帮到后来之人,也是对自己学习的一个总结.笔者深知自己的知识有局限性,其中难免出现错误,望读者批评指正
+								</p>
+
+								<p>
+									其中会涉及到angular的原理,我不打算细细写下angular框架是如何搭建的,也不打算向读者拿着源码就分析那种,我希望能通过模拟angular的特性,激起大家的兴趣,能让读者明白里面的原理.我期望这本书能让初学者在初学angular和读angular源码之间搭起一座桥梁,而不是被angular的各种概念,淹没了学习的兴趣.
+									------ 积土而为山，积水而为海。——《荀子·儒效》
+								</p>
+
+								<p>
+									权利:被授权人有权利使用、复制、修改、合并、出版发行、散布、再授权及贩售软件及软件的副本。
+										 被授权人可根据程式的需要修改许可协议为适当的内容。
+								</p>
+
+								<p>
+									义务:在软件和软件的所有副本中都必须包含版权声明和许可声明								
+								</p>
+
+								<p>
+									感谢桃子提出的各种问题,才能让这一系列完成,真心感谢	
+								</p>
+
+								<p>
+									make by marchen with <img src="images/icon-love.png" width="16" height="16">
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="bb-item" id="item2">
+						<div class="content">
+							<div class="scroller">
+								<h2>待定</h2>
+							</div>
+						</div>
+					</div>
+					<div class="bb-item" id="item3">
+						<div class="content">
+							<div class="scroller">
+								<h2>待定</h2>
+							</div>
+						</div>
+					</div>
+					<div class="bb-item" id="item4">
+						<div class="content">
+							<div class="scroller">
+								<h2>待定</h2>
+							</div>
+						</div>
+					</div>
+					<div class="bb-item" id="item5">
+						<div class="content">
+							<div class="scroller">
+								<h2>待定</h2>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<nav>
+					<span id="bb-nav-prev">&larr;</span>
+					<span id="bb-nav-next">&rarr;</span>
+				</nav>
+
+				<span id="tblcontents" class="menu-button">目录</span>
+
+			</div>
+				
+		</div><!-- /container -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script src="js/jquery.mousewheel.js"></script>
+		<script src="js/jquery.jscrollpane.min.js"></script>
+		<script src="js/jquerypp.custom.js"></script>
+		<script src="js/jquery.bookblock.js"></script>
+		<script src="js/page.js"></script>
+		<script src="js/hl-all.js"></script>
+		<script>
+			$(function() {
+
+				Page.init();
+				DlHighlight.HELPERS.highlightByName("code", "pre");
+
+			});
+		</script>
+	</body>
+</html>

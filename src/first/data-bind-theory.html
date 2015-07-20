@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>双向数据绑定原理(简化版)</title>
+</head>
+<body>
+
+	<input type="text" ng-model="name" ng-model="name">
+
+	<script>
+	(function() {
+
+		function Scope() {
+			this.$watchers = [];
+		}
+
+		Scope.prototype.$watch = function(exp, listener, eq) {
+			var scope = this;
+			if(typeof exp === 'string') {
+				//如果是字符串,转换成函数
+				this.$watchers.push({
+					eq : eq || false,
+					exp : function(){return scope[exp]},
+					last : undefined,
+					listener : listener || function(){}
+				});
+			}else if(typeof exp === 'function') {
+				this.$watchers.push({
+					eq : eq || false,
+					exp : exp,
+					last : undefined,
+					listener : listener || function(){}
+				});
+			}else {
+				console.log('exp must be a function!');
+			}
+		}
+
+		Scope.prototype.$digest = function() {
+			var dirty;
+			do {
+				dirty = false;
+
+				this.$watchers.forEach(function(obj, index, array) {
+
+					var newValue = obj.exp();
+					var oldValue = obj.last;
+
+					if(!obj.eq) {
+						/*  浅检测相等 */
+						if(newValue === oldValue) {
+							return false;
+						}
+
+					}else {
+						/* 深度检测相等 */
+
+					}
+					/* 不相等的话,处理逻辑 */
+					obj.listener();
+					obj.last = newValue;
+					dirty = true;
+
+					/* 渲染页面效果 */
+					console.log('现在' + key + ':' + '已经变成了' + newValue);
+
+				});
+			}while(dirty)
+		}
+
+		var scope = new Scope();
+
+		var ele = document.querySelector('[ng-model]');
+		var key;
+		(function() {
+			key = ele.getAttribute('ng-model');
+			scope.$watch(key,function(){});  /* 自动数据绑定 */
+		})();
+
+		ele.oninput = function() {
+			scope[key] = this.value;
+			scope.$digest();
+		}
+		
+		scope.$digest();
+
+	})();
+	</script>
+</body>
+</html>
