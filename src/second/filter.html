@@ -17,8 +17,12 @@
 					return parseInt(input, type);
 				}
 		});
-		angular
-			.module('marchen', ['marchen.filter']);
+		console.log(angular.module('marchen',[]).controller('ssss',function(){
+			
+		}).filter('name',function(){
+			console.log(angular.module('marchen'))
+		}));
+
 	})();
 	</script>
 </body>

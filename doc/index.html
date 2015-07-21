@@ -23,7 +23,7 @@
 					<li class="menu-toc-current"><a href="#item1">序</a></li>
 					<li><a href="#item2">数据绑定</a></li>
 					<li><a href="#item3">过滤器</a></li>
-					<li><a href="#item4">表单验证</a></li>
+					<li><a href="#item4">指令</a></li>
 					<li><a href="#item5">待定</a></li>
 				</ul>
 				<div>
@@ -227,14 +227,101 @@ setTimeout(function(){
 					<div class="bb-item" id="item3">
 						<div class="content">
 							<div class="scroller">
-								<h2>待定</h2>
+								<h2>过滤器</h2>
+								<h4>过滤器是什么</h4>
+								<p>顾名思义,用来过滤显示数据的一种方法,本质上过滤器是一个函数,在angular中,过滤器可以在视图模板或者在脚本依赖注入使用,过滤器在angular是作为一种provider存在的,会在angular运行的时候,注册过滤器</p>
+								<h4>模板中使用过滤器</h4>
+								<pre name="code" class="html">
+&lt;div&gt;
+	{{money | number}}
+	{{money | uppercase | lowercase}}
+&lt;/div&gt;
+								</pre>
+								<p>
+									angular 内置了许多过滤器,而且过滤器能像管道一样调用,下面看看有哪些内置的过滤器
+								</p>
+								<pre name="code" class="html">
+&lt;div&gt;
+
+	//money=12.5489
+	{{money | currency}}  // $12.55 // 默认保留2位小数,添加$符号 
+	{{money | currency:'¥':3}} // ¥12.549 
+
+	{{money | date}} // Jul 21, 2015 
+	{{money | date:'yyyymmdd-hh:mm:ss'}} // 20155721-02:57:22 
+
+	{{['cake','car','money','name'] | filter:'c'}} // ['cake','car'] 
+
+	{{{name:'mark'} | json}} // { "name": "mark" } 
+
+	{{'hello world' | limitTo}} // hello world 
+	{{'hello world' | limitTo: 1}} // h 
+	{{'hello world' | limitTo: -1}} // d 
+
+	{{money | number}} // 12.549 // 默认超过3位保留3位小数,整数的话保留整数 
+	{{money | number:2}} // 12.55 
+
+	{{[{name:'b'},{name:'c'},{name:'a'}] | orderBy:'name'}}  //[{name:'a'},{name:'b'},{name:'c'}]
+    
+    {{'HELLO world' | uppercase}} //HELLO WORLD
+
+&lt;/div&gt;
+								</pre>
+								<p>
+									过滤器除了在试图模板中使用,还可以作为服务依赖注入.
+								</p>
+								<pre name="code" class="js">
+angular
+	.module('test', [])
+	.controller('testController', function($scope, $filter){
+		$scope.money = $filter('currency')(12.459,'¥');
+	});
+								</pre>
+								<h4>自定义过滤器</h4>
+								<pre name="code" class="js">
+//定义一个 int 的过滤器
+angular
+	.module('test.filter', [])
+	.filter('int', function(){
+		return function(input){
+			return parseInt(input);
+		}
+	});
+								</pre>
+								<p>
+									当定义好了filter的过滤器,就能够把filter注入到用到的模块中了
+								</p>
+								<pre name="code" class="js">
+angular
+	.module('test', ['test.filter'])
+	.controller('testController', function($filter){
+		var money = $filter('int')();
+	});
+								</pre>
+								<p>
+									当然如果想定义带参数的过滤器,只需要后面添加多个变量就行了
+								</p>
+								<pre name="code" class="js">
+//定义一个 int(type) 的过滤器
+angular
+	.module('test.filter', [])
+	.filter('int', function(){
+		return function(input, type){
+			return parseInt(input,type);   // {{money | int:10}}
+		}
+	});
+								</pre>
+								<h4>过滤器优化建议</h4>
+								<p>
+									如果把过滤器写到视图模板中的话,每次变量的改变,都会调用过滤函数,所以,如果这个变量确定是只改变一次,就可以使用过滤器的依赖注入方案,这样能提高性能.
+								</p>
 							</div>
 						</div>
 					</div>
 					<div class="bb-item" id="item4">
 						<div class="content">
 							<div class="scroller">
-								<h2>待定</h2>
+								<h2>指令</h2>
 							</div>
 						</div>
 					</div>
