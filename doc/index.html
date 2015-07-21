@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-		<title>magic-angular</title>
+		<title>angular-bridge</title>
 		<meta name="description" content="分析angular源码" />
 		<meta name="keywords" content="angular,js,mvc,fe" />
 		<meta name="author" content="marchen" />
@@ -74,7 +74,7 @@
 							<div class="scroller">
 								<h2>数据绑定</h2>
 									<h4>
-										angular实现了数据绑定,就是view层面的操作,能映射到model层面,说白了,就是界面上操作一些东西,就能自动修改javascript变量的值.示例:
+										angular实现了双向数据绑定,就是view层面的操作,能映射到model层面,而model层面的更改,能反应到view层面,说白了,就是界面上操作一些东西,就能自动修改javascript变量的值.而改变变量的值,就会自动更新界面示例:
 									</h4>
 									<pre name="code" class="html">
 &lt;input value='' ng-model="name" placeholder="input your name"&gt;
@@ -83,7 +83,7 @@
 var name;
 									</pre>
 							<p>
-								从单向数据绑定来说,需要做到界面的操作能映射到变量name.对于这个示例来说,很简单,只需要给带有ng-model属性的input元素注册个input事件,然后事件会自动更新name这个变量.我们这样来实现:
+								试着想下,单单从单向数据绑定来说,需要做到界面的操作能映射到变量.对于这个示例来说,很简单,只需要给带有ng-model属性的input元素注册个input事件,然后事件会自动更新name这个变量.我们可以这样来实现:
 							</p>
 							<pre name="code" class="js">
 var models = [];  //变量组
@@ -105,14 +105,14 @@ models[0].ele.oninput = function () {
 								注册一个事件,就能很轻松的实现操作界面,变量改变了,这个是从view--->model,当然,angular监听的事情不只是input,还包括其他比如keydown,ajax完成事件等等.angular内部实现会更加复杂,作为原理,就讲解到这里,下面来看看model--->view,还是以上的例子来说,就是变量的值改变了,界面上input的value就能改变,想想看,怎么能让一个变量的值改变了,能通知或者说调用一个方法来改变界面呢?
 							</p>
 							<p>
-								很轻松的就能想到,可以使用object.observe来实现对变量的监视,然后回调一个方法来改变元素,这个是一个好的方法,但是对低端浏览器兼容性比较差,那竟然不行的话,就只能在改变变量后,手动调用一个方法,来检测下是不是变量发生了改变.(很多人想不清楚为什么变量改变了,界面会改变的原因就是,后面需要调用一个方法来检测变量是不是改变了,而不是单单只改变变量就能实现界面的改变),而angular内部就是采用这种方式来实现的,使用$digest这个方法来实现.这种方式又被称为脏检测机制
+								很轻松的就能想到,可以使用object.observe来实现对变量的监视,然后回调一个方法来改变元素,这个是一个好的方法(angular2.0使用的就是这种方式,也是笔者比较看好的方式),但是对低端浏览器兼容性比较差,那竟然不行的话,就只能在改变变量后,手动调用一个方法,来检测下是不是变量发生了改变.(很多人可能会想不清楚为什么变量改变了,界面会随着改变,不是使用的定时检测,而是通过调用一个方法来检测变量是不是改变了,而不是单单只改变变量就能实现界面的改变),而angular内部就是采用这种方式来实现的,使用$digest这个方法来实现.这种方式被称为脏检测机制
 							</p>
 							<pre name="code" class="js">
 $scope.name = 'hello world';
 $scope.$digest();   //不加上这句,界面不会改变
 							</pre>
 							<p>
-								angular中用$scope来作为界面和数据之间的粘合剂,我们来模拟下angular怎么实现$scope改变后,能知道改变了那个,Scope我们认为是一个构造函数,含有属性$watchers(存放需要监视的变量).包括一个$watch(主要是来注册监视事件的)方法.还包括一个$digest方法来触发脏检测.($digest是一个方法,主要是循环$watcher队列中的exp方法,然后来判断变量是否改变,如果改变了,就调用注册的事件.).我们可以注册一个需要监测的变量到scope的$watchers里面去,在改变变量后,手动调用下$digest循环遍历下是否有改变了的值,然后有的话,就调用注册的回调函数.
+								angular中用$scope来作为界面和数据之间的粘合剂,专业点就是对象视图模型.我们来模拟下angular怎么实现$scope改变后,能知道改变了那个,暂且把Scope认为是一个构造函数,含有属性$watchers(存放需要监视的变量).包括一个$watch(主要是来注册监视事件的)方法.还包括一个$digest方法来触发脏检测.($digest是一个方法,主要是循环$watcher队列中的exp方法,然后来判断变量是否改变,如果改变了,就调用注册的事件.).我们可以注册一个需要监测的变量到scope的$watchers里面去,在改变变量后,手动调用下$digest循环遍历下是否有改变了的值,然后有的话,就调用注册的回调函数.
 							</p>
 							<pre name="code" class="js">
 function Scope() {
@@ -209,13 +209,18 @@ setTimeout(function(){
 },2000);
 							</pre>
 							<p>
-								新建一个scope对象,然后注册回调事件,其中有很多可以优化的地方,包括可以把事情封装起来,然后在调用$digest事情.angular内部还提供了$apply方法来间接调用$digest方法(详细区别这里就不说了).而且angular内部脏检测会记录次数,超过10次循环就会报错等等一系列优化,希望这个示例,能帮助读者在读源码的时候,理解概念.
+								新建一个scope对象,然后注册回调事件,其中有很多可以优化的地方,包括可以把事件封装起来,然后在调用$digest事情.angular内部还提供了$apply方法来间接调用$digest方法(详细区别这里就不说了).而且angular内部脏检测会记录次数,超过10次循环就会报错等等一系列优化,真正的angular的$scope.$$watchers中会存放一个get属性,用来保存编译后的exp,我上面的算是简化版的.希望这个示例,能帮助读者在读源码的时候,理解概念.
 							</p>
 							<p>
-								更加详细的介绍,可以看src目录下的first/data-bind-theory.html.
+								完整的代码示例,可以看src目录下的first/data-bind-theory.html.
 							</p>
 							<h4>双向数据绑定</h4>
-							<p>通过以上的介绍,相信双向数据绑定就很简单了,只需要封装下事件,然后在每个事件后面调用$digest方法就可以了.脏检测就是循环判断队列中的变量是否发生改变.改变的数据可以称之为脏数据,从而调用回调.其实上面的示例已经算是双向了,读者可以试着自己封装下事件,实现双向绑定.</p>
+							<p>
+								通过以上的介绍,相信双向数据绑定就很简单了,只需要封装下事件,然后在每个事件后面调用$digest方法就可以了.脏检测就是循环判断队列中的变量是否发生改变.改变的数据可以称之为脏数据,从而调用回调.其实上面的示例已经算是双向了,读者可以试着自己封装下事件,实现双向绑定.</p>
+							<h4>优化建议</h4>
+							<p>
+								理解了angular数据绑定的原理,针对使用数据绑定也就能注意性能优化了,绑定过多的变量,不仅会增加每次$digest循环的时间,而且消耗也会变大.官方建议是不超过2000个.所以优化建议第一个是对于一次性的$scope.watch的变量,使用过后要记得清除,减少监听变量的个数.第二个是回调函数不要写的过大,会影响性能.对于ng-show,ng-hide这样的看场景是否能替换成ng-if之类的动态计算指令.
+							</p>
 						</div>
 					</div>
 					</div>
@@ -252,7 +257,7 @@ setTimeout(function(){
 			</div>
 				
 		</div><!-- /container -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script src="js/jquery1.11.2.min.js"></script>
 		<script src="js/jquery.mousewheel.js"></script>
 		<script src="js/jquery.jscrollpane.min.js"></script>
 		<script src="js/jquerypp.custom.js"></script>
