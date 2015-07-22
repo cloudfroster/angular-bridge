@@ -6,17 +6,37 @@
 	<script src="../angular.min.js"></script>
 </head>
 <body>
-	<form ng-controller="formController" name="form" novalidate>
-		<input type="text" name="username" ng-model="username" required>
-		<input type="submit" value="提交">
-	</form>
+	<div class="container" ng-controller="containerController as container">
+		<div mc-hello></div>
+	</div>
 	<script>
-	(function() {
+	~function() {
 		angular.module('marchen', [])
-			.controller('formController',function($scope){
-
+			.controller('containerController', ['$scope', function($scope) {
+				var vm = this;
+				vm.name = 'marchen';
+			}])
+			.directive('mcHello', function() {
+				// Runs during compile
+				return {
+					// name: '',
+					// priority: 1,
+					// terminal: true,
+					//scope: true, // {} = isolate, true = child, false/undefined = no change
+					// controller: function($scope, $element, $attrs, $transclude) {},
+					// require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+					 restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+					 template: '<div>hello {{container.name}}!</div>',
+					// templateUrl: '',
+					// replace: true,
+					// transclude: true,
+					// compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+					link: function($scope, iElm, iAttrs, controller) {
+						
+					}
+				};
 			});
-	})();
+	}();
 	</script>
 </body>
 </html>

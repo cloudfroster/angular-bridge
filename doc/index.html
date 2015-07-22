@@ -322,6 +322,84 @@ angular
 						<div class="content">
 							<div class="scroller">
 								<h2>指令</h2>
+								<h4>
+									指令可以看成对HTML元素的增强,不管是新建立元素然后渲染成组件,还是对目前已知的元素进行功能性的增强,都是弥补目前HTML元素的不足,个人认为,指令是angular中比较出色和重要的设计之一,指令可以封装复杂的逻辑,而让调用者简单的写个html标签就能调用了,简单理解可以看成,指令封装了一个函数,然后通过在HTML中调用这个函数来改变HTML的一些能力,基本的常用内置angular指令列举如下:
+								</h4>
+								<pre name="code" class="html">
+ng-app (创建作用域)
+ng-init
+ng-href
+ng-src
+ng-if
+ng-show
+ng-checked
+ng-click
+ng-submit
+ng-change
+ng-disabled
+ng-selected
+ng-include
+ng-switch
+ng-repeat
+ng-view
+ng-model
+ng-class
+ng-attr-(suffix)
+ng-controller (创建作用域)
+								</pre>
+								<h4>自定义指令</h4>
+								<p>
+									除了ng内置的指令外,还可以自己定义指令,指令能封装复杂的操作,或者封装事件等处理逻辑,对于调用者来说,是特别友好的东西,angualr自定义指令也十分简单,语法如下:
+								</p>
+								<pre name="code" class="js">
+angular.module('marchen', [])
+	.controller('containerController', ['$scope', function($scope) {
+		var vm = this;
+		vm.name = 'marchen';
+	}])
+	.directive('mcHello', function() {
+		// Runs during compile
+		return {
+			// name: '',
+			// priority: 1,
+			// terminal: true,
+			//scope: true, // {} = isolate, true = child, false/undefined = no change
+			// controller: function($scope, $element, $attrs, $transclude) {},
+			// require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+			 restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+			 template: '<div>hello {{container.name}}!</div>',
+			// templateUrl: '',
+			// replace: true,
+			// transclude: true,
+			// compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+			link: function($scope, iElm, iAttrs, controller) {
+				
+			}
+		};
+	});
+								</pre>
+								<p>
+									上面定义了一个叫mcHello的指令,在HTML调用的时候,需要特别注意的是写成&lt;div mc-hello&gt;&lt;/div&gt;才能调用成功,因为HTML不区分大小写,所以angular编译的时候,在HTML找到指令名称会把 - , : 替换成驼峰命名.可以看到指令有2个值得注意的方法,一个compile和一个link方法.angular在执行的时候,会执行compile里面的方法(如果有的话),没有compile就会执行link方法.其他的属性可以认为是配置数据.
+								</p>
+								<h4>模拟实现指令</h4>
+								<pre code="name" class="js">
+var opt = {
+	name : '[mc-hello]',
+	template : '<div>hello world</div>',
+	link : function(tElement, tAttrs) {
+		var tem = this.template;
+		tElement.innerHTML = tem;
+	}
+}
+opt.link(document.querySelector(opt.name));
+								</pre>
+								<p>
+									angular内部会对template进行$parse,会有compile操作,不过基本原理是不会改变,希望能帮助理解吧
+								</p>
+								<h4>优化建议</h4>
+								<p>
+									指令作为封装复杂功能实现的方法,在指令中操作dom元素,进行一些复杂的操作,如果有的功能能提取出来,尽量做成服务来让其他组件调用.
+								</p>
 							</div>
 						</div>
 					</div>
