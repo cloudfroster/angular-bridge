@@ -24,7 +24,7 @@
 					<li><a href="#item2">数据绑定</a></li>
 					<li><a href="#item3">过滤器</a></li>
 					<li><a href="#item4">指令</a></li>
-					<li><a href="#item5">待定</a></li>
+					<li><a href="#item5">服务</a></li>
 				</ul>
 				<div>
 					<a href="https://github.com/chen844033231/magic-angular" title="fork me" target="_blank">&larr; fork me on github</a>
@@ -394,7 +394,12 @@ var opt = {
 opt.link(document.querySelector(opt.name));
 								</pre>
 								<p>
-									angular内部会对template进行$parse,会有compile操作,不过基本原理是不会改变,希望能帮助理解吧
+									angular内部会对template进行$parse,会有compile操作,不过基本原理是不会改变.
+								</p>
+								<h4>指令的compile和link的区别</h4>
+								<p>
+									指令在定义好了之后,会在angular启动的时候(自动或者手动启动),查找页面中的指令,当找到指令后,会首先运行指令中的compile函数,如果没有compile函数,就会去运行link函数.如果compile函数和link函数都有定义的话,会忽略不执行link函数.那到底compile和link函数有什么区别,为什么不在找到指令后,直接调用一个函数,反而要区分出compile和link呢?其实他们之间的区别就是compile函数运行的时候,回调的是最原始的html,也就是说,没有angular的$scope,就单单只是纯的dom,没有被angular包装过的,而link函数运行的时候,回调的就已经是被angular包装过的了,已经有了$scope的概念了.所以可以在改变html原始结构的时候调用compile函数,然后在绑定变量的时候调用link函数.
+									详细的解释请查考<a href="http://www.jb51.net/article/58229.htm" target="_blank">这篇文章</a>,讲的十分详细.
 								</p>
 								<h4>优化建议</h4>
 								<p>
@@ -406,8 +411,60 @@ opt.link(document.querySelector(opt.name));
 					<div class="bb-item" id="item5">
 						<div class="content">
 							<div class="scroller">
-								<h2>待定</h2>
+								<h2>服务</h2>
 							</div>
+							<h4>在开发过程中,对一些通用的功能进行封装是十分重要的,而angular提供了服务这个概念来实现功能的封装.不管是向后台发送ajax的这种功能,或者是其他复杂的功能,都可以使用服务来完成.</h4>
+							<h4>如何定义服务</h4>
+							<p>
+								在angular中有5中方式来定义服务,provider,service,factory,value,constant,看起来有很多方式,但是在内部都是转换成了provider来调用的,所以这些都只是服务,只是方便我们来定义服务罢了,比较常用的定义服务的方式是factory.服务本质是一个单例对象,定义好了后,可以被依赖注入.定义一个简单的服务如下面所示.
+							</p>
+							<pre name="code" class="js">
+angular.model('test', [])
+	.factory('hello', function(){
+		return {
+			sayHello : function(){
+				alert('hello world');
+			}
+		}
+	});
+							</pre>
+							<p>定义好了服务后,就可以在controller或者其他服务中调用了,使用方式和其他服务一样.自定义服务写在内置服务之后,推荐的写法:</p>
+							<pre name="code" class="js">
+angular.model('test')
+	.controller('testController', ['$http', 'hello', function($http, hello){
+		hello.sayHello();
+	}]);
+/**
+ * angular内置的服务
+ */
+$anchorScroll
+$animate
+$cacheFactory
+$compile
+$controller
+$document
+$exceptionHandler
+$filter
+$http
+$httpBackend
+$httpParamSerializer
+$httpParamSerializerJQLike
+$interpolate
+$interval
+$locale
+$location
+$log
+$parse
+$q
+$rootElement
+$rootScope
+$sce
+$sceDelegate
+$templateCache
+$templateRequest
+$timeout
+$window
+							</pre>
 						</div>
 					</div>
 				</div>
